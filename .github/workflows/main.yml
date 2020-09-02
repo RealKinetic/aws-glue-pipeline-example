@@ -73,7 +73,7 @@ jobs:
           
       # Copy the file to the S3 bucket
       - name: Upload to S3
-        run: aws s3 cp traffic.py s3://${{secrets.S3_BUCKET}}/traffic.py --region us-east-1
+        run: aws s3 cp traffic.py s3://${{secrets.S3_BUCKET}}/traffic_${GITHUB_SHA}.py --region us-east-1
       
       # Remove stored credentials file
       - name: Cleanup
