@@ -51,12 +51,14 @@ jobs:
         with:
           name: traffic.py
           
+      # Install the AWS CLI to upload to S3
       - name: Install AWS CLI
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install
           
+      # Set up credentials used by AWS CLI to access S3
       - name: Set up AWS credentials
         run: |
           mkdir -p ~/.aws
@@ -65,9 +67,11 @@ jobs:
           aws_access_key_id = ${AWS_ACCESS_KEY_ID}
           aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" > ~/.aws/credentials
           
+      # Copy the file to the S3 bucket
       - name: Upload to S3
         run: aws s3 cp traffic.py s3://${S3_BUCKET}/traffic.py --region us-east-1
       
+      # Remove stored credentials file
       - name: Cleanup
         run: rm -rf ~/.aws
     
