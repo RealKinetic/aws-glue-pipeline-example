@@ -41,7 +41,7 @@ jobs:
           name: traffic.py
           path: traffic.py
   
-  # Upload python script to S3
+  # Upload python script to S3 and update Glue job
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -51,14 +51,14 @@ jobs:
         with:
           name: traffic.py
           
-      # Install the AWS CLI to upload to S3
+      # Install the AWS CLI
       - name: Install AWS CLI
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
           sudo ./aws/install
           
-      # Set up credentials used by AWS CLI to access S3
+      # Set up credentials used by AWS CLI
       - name: Set up AWS credentials
         shell: bash
         env:
@@ -74,6 +74,13 @@ jobs:
       # Copy the file to the S3 bucket
       - name: Upload to S3
         run: aws s3 cp traffic.py s3://${{secrets.S3_BUCKET}}/traffic_${GITHUB_SHA}.py --region us-east-1
+      
+      # Update the Glue job to use the new script
+      - name: Update Glue job
+        run: |
+          aws glue update-job --job-name "Traffic ETL" --job-update \
+            "Role=AWSGlueServiceRole-TrafficCrawler,Command={Name=glueetl,ScriptLocation=s3://${{secrets.S3_BUCKET}}/traffic_${GITHUB_SHA}.py}" \
+            --region us-east-1
       
       # Remove stored credentials file
       - name: Cleanup
