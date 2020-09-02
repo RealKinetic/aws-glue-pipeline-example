@@ -42,6 +42,7 @@ jobs:
           path: traffic.py
           
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Download python script from build
